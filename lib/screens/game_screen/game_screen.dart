@@ -22,21 +22,41 @@ class GameScreen extends StatelessWidget {
       create: (context) => GameScreenProvider(gameModel: gameModel),
       child: Consumer<GameScreenProvider>(builder: (context, provider, _) {
         return Scaffold(
-          backgroundColor: GameColors.background,
-          appBar: GameAppBar(
-            onBackPressed: provider.onBackPressed,
-            onSettingsPressed: provider.onSettingsPressed,
-          ),
-          body: Column(
-            children: [
-              GameInfo(provider: provider),
-              SudokuBoard(provider: provider),
-              const Spacer(),
-              ActionButtons(provider: provider),
-              const Spacer(),
-              NumberButtons(provider: provider),
-              const Spacer(flex: 1),
-            ],
+          // Modern gradient background
+          body: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF232526), Color(0xFF1D2B64)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Column(
+              children: [
+                GameAppBar(
+                  onBackPressed: provider.onBackPressed,
+                  onSettingsPressed: provider.onSettingsPressed,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                  child: GameInfoCard(provider: provider),
+                ),
+                Expanded(
+                  child: Center(
+                    child: SudokuBoard(provider: provider),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                  child: ActionButtons(provider: provider),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                  child: NumberButtons(provider: provider),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
           ),
         );
       }),
@@ -44,90 +64,231 @@ class GameScreen extends StatelessWidget {
   }
 }
 
-class ActionButtons extends StatelessWidget {
-  const ActionButtons({required this.provider, super.key});
-
+// Modern info card with shadow and rounded corners
+class GameInfoCard extends StatelessWidget {
+  const GameInfoCard({required this.provider, super.key});
   final GameScreenProvider provider;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: GameSizes.getHorizontalPadding(0.03),
+    final Difficulty difficulty = provider.difficulty;
+    final int mistakes = provider.mistakes;
+    final int score = provider.score;
+    final int time = provider.time;
+    final bool isPaused = provider.gamePaused;
+    final Function() pauseGame = provider.pauseButtonOnTap;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 18),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          ActionButton(
-            title: "undo".tr(),
-            iconWidget: const ActionIcon(Icons.refresh),
-            onTap: () => provider.undoOnTap(),
-          ),
-          ActionButton(
-            title: "erase".tr(),
-            iconWidget: const ActionIcon(Icons.delete),
-            onTap: () => provider.eraseOnTap(),
-          ),
-          ActionButton(
-            title: "notes".tr(),
-            iconWidget: Stack(
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const ActionIcon(Icons.drive_file_rename_outline_outlined),
-                NotesSwitchWidget(notesOn: provider.notesMode),
+                GameInfoWidget(
+                  value: difficulty.name.toLowerCase().tr(),
+                  title: "difficulty".tr(),
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                ),
+                GameInfoWidget(
+                  value: '$mistakes/3',
+                  title: "mistakes".tr(),
+                ),
+                GameInfoWidget(
+                  value: '$score',
+                  title: "score".tr(),
+                ),
+                GameInfoWidget(
+                  value: time.toTimeString(),
+                  title: "time".tr(),
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                ),
               ],
             ),
-            onTap: () => provider.notesOnTap(),
           ),
-          ActionButton(
-            title: "hint".tr(),
-            iconWidget: Stack(
-              children: [
-                const ActionIcon(Icons.lightbulb_outlined),
-                HintsAmountCircle(hints: provider.hints),
-              ],
-            ),
-            onTap: () => provider.hintsOnTap(),
-          ),
+          const SizedBox(width: 12),
+          PauseButton(isPaused: isPaused, onPressed: pauseGame),
         ],
       ),
     );
   }
 }
 
-class NumberButtons extends StatelessWidget {
-  const NumberButtons({required this.provider, super.key});
-
+// Modernized Action Button Row
+class ActionButtons extends StatelessWidget {
+  const ActionButtons({required this.provider, super.key});
   final GameScreenProvider provider;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: GameSizes.getHorizontalPadding(0.05),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: List.generate(9, (index) {
-          final bool showButton = provider.isNumberButtonNecessary(index + 1);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        _ModernActionButton(
+          title: "undo".tr(),
+          icon: Icons.refresh,
+          onTap: provider.undoOnTap,
+        ),
+        _ModernActionButton(
+          title: "erase".tr(),
+          icon: Icons.delete,
+          onTap: provider.eraseOnTap,
+        ),
+        _ModernActionButton(
+          title: "notes".tr(),
+          icon: Icons.drive_file_rename_outline_outlined,
+          onTap: provider.notesOnTap,
+          highlight: provider.notesMode,
+        ),
+        _ModernActionButton(
+          title: "hint".tr(),
+          icon: Icons.lightbulb_outlined,
+          onTap: provider.hintsOnTap,
+          badge: provider.hints,
+        ),
+      ],
+    );
+  }
+}
 
-          return Opacity(
-            opacity: showButton ? 1 : 0.3,
-            child: InkWell(
-              onTap: showButton
-                  ? () => provider.numberButtonOnTap(index + 1)
-                  : null,
-              borderRadius: GameSizes.getRadius(8),
-              child: Padding(
-                padding: GameSizes.getSymmetricPadding(0.015, 0.015),
+// Modern Action Button Widget
+class _ModernActionButton extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  final VoidCallback onTap;
+  final bool highlight;
+  final int? badge;
+
+  const _ModernActionButton({
+    required this.title,
+    required this.icon,
+    required this.onTap,
+    this.highlight = false,
+    this.badge,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        decoration: BoxDecoration(
+          color: highlight ? Colors.amber.withOpacity(0.18) : Colors.white.withOpacity(0.07),
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: highlight
+              ? [
+                  BoxShadow(
+                    color: Colors.amber.withOpacity(0.18),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : [],
+        ),
+        child: Row(
+          children: [
+            Stack(
+              children: [
+                Icon(icon, color: highlight ? Colors.amber : Colors.white, size: 26),
+                if (badge != null && badge! > 0)
+                  Positioned(
+                    right: -6,
+                    top: -6,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.amber,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.15),
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        badge.toString(),
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: TextStyle(
+                color: highlight ? Colors.amber : Colors.white,
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Modernized Number Buttons
+class NumberButtons extends StatelessWidget {
+  const NumberButtons({required this.provider, super.key});
+  final GameScreenProvider provider;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: List.generate(9, (index) {
+        final bool showButton = provider.isNumberButtonNecessary(index + 1);
+        final bool isSelected = provider.selectedCell.value == (index + 1);
+
+        return AnimatedOpacity(
+          duration: const Duration(milliseconds: 200),
+          opacity: showButton ? 1 : 0.3,
+          child: GestureDetector(
+            onTap: showButton ? () => provider.numberButtonOnTap(index + 1) : null,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 0),
+              width: 38,
+              decoration: BoxDecoration(
+                color: isSelected ? Colors.amber.withOpacity(0.18) : Colors.white.withOpacity(0.07),
+                borderRadius: BorderRadius.circular(12),
+                border: isSelected
+                    ? Border.all(color: Colors.amber, width: 2)
+                    : null,
+              ),
+              child: Center(
                 child: Text(
                   (index + 1).toString(),
                   style: provider.notesMode
-                      ? GameTextStyles.noteButton
-                          .copyWith(fontSize: GameSizes.getWidth(0.09))
-                      : GameTextStyles.numberButton
-                          .copyWith(fontSize: GameSizes.getWidth(0.09)),
+                      ? GameTextStyles.noteButton.copyWith(fontSize: 22)
+                      : GameTextStyles.numberButton.copyWith(fontSize: 22),
                 ),
               ),
             ),
-          );
-        }),
-      ),
+          ),
+        );
+      }),
     );
   }
 }

@@ -5,11 +5,12 @@ import '../utils/game_sizes.dart';
 
 class AppBarActionButton extends StatelessWidget {
   const AppBarActionButton(
-      {required this.icon, required this.onPressed, this.iconSize, super.key});
+      {required this.icon, required this.onPressed, this.iconSize, super.key, this.color});
 
   final IconData icon;
   final Function() onPressed;
   final double? iconSize;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +18,7 @@ class AppBarActionButton extends StatelessWidget {
       onPressed: onPressed,
       icon: Icon(
         icon,
-        color: GameColors.appBarActions,
+        color: color ?? GameColors.appBarActions,
       ),
       iconSize: iconSize ?? GameSizes.getWidth(0.06),
       visualDensity: VisualDensity.compact,

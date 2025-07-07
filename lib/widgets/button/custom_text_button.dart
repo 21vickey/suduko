@@ -8,11 +8,12 @@ class CustomTextButton extends StatelessWidget {
   const CustomTextButton({
     super.key,
     required this.text,
-    this.onPressed,
+    this.onPressed, this.textStyle,
   });
 
   final String text;
   final Function()? onPressed;
+  final TextStyle? textStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +25,7 @@ class CustomTextButton extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: GameTextStyles.customTextButtonText.copyWith(
+        style: textStyle ??GameTextStyles.customTextButtonText.copyWith(
           fontSize: GameSizes.getWidth(0.038),
         ),
       ),

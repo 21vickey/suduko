@@ -40,33 +40,68 @@ class _NavigationBarScreenState extends State<NavigationBarScreen> {
     ];
     return Scaffold(
       backgroundColor: GameColors.background,
-      bottomNavigationBar: BottomNavigationBar(
-        elevation: 10,
-        onTap: onTappedItem,
-        items: navigationBarItems,
-        currentIndex: _selectedIndex,
-        backgroundColor: Colors.white,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: GameColors.navigationBarItemActive,
-        unselectedItemColor: GameColors.navigationBarItemPassive,
-        selectedLabelStyle: GameTextStyles.navigationBarItemLabel
-            .copyWith(fontSize: GameSizes.getWidth(0.032)),
-        unselectedLabelStyle: GameTextStyles.navigationBarItemLabel.copyWith(
-          fontSize: GameSizes.getWidth(0.032),
+      extendBody: true,
+      body: screens[_selectedIndex],
+      bottomNavigationBar: Container(
+        margin: const EdgeInsets.only(left: 18, right: 18, bottom: 16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.10),
+              blurRadius: 18,
+              offset: const Offset(0, 6),
+            ),
+          ],
+          gradient: LinearGradient(
+            colors: [
+              Colors.white.withOpacity(0.85),
+              Colors.white.withOpacity(0.65),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(28),
+          child: BottomNavigationBar(
+            elevation: 0,
+            onTap: onTappedItem,
+            items: navigationBarItems,
+            currentIndex: _selectedIndex,
+            backgroundColor: Colors.transparent,
+            type: BottomNavigationBarType.fixed,
+            selectedItemColor: GameColors.navigationBarItemActive,
+            unselectedItemColor: GameColors.navigationBarItemPassive,
+            selectedLabelStyle: GameTextStyles.navigationBarItemLabel
+                .copyWith(fontSize: GameSizes.getWidth(0.034), fontWeight: FontWeight.bold),
+            unselectedLabelStyle: GameTextStyles.navigationBarItemLabel.copyWith(
+              fontSize: GameSizes.getWidth(0.032),
+            ),
+            showUnselectedLabels: true,
+            iconSize: GameSizes.getWidth(0.09),
+          ),
         ),
       ),
-      body: screens[_selectedIndex],
     );
   }
 
   List<BottomNavigationBarItem> get navigationBarItems => [
         BottomNavigationBarItem(
           label: "home".tr(),
-          icon: Icon(Icons.home, size: GameSizes.getWidth(0.08)),
+          icon: AnimatedScale(
+            scale: _selectedIndex == 0 ? 1.2 : 1.0,
+            duration: const Duration(milliseconds: 200),
+            child: Icon(Icons.home_rounded, size: GameSizes.getWidth(0.09)),
+          ),
         ),
         BottomNavigationBarItem(
           label: "statistics".tr(),
-          icon: Icon(Icons.bar_chart, size: GameSizes.getWidth(0.08)),
+          icon: AnimatedScale(
+            scale: _selectedIndex == 1 ? 1.2 : 1.0,
+            duration: const Duration(milliseconds: 200),
+            child: Icon(Icons.bar_chart_rounded, size: GameSizes.getWidth(0.09)),
+          ),
         ),
       ];
 }
