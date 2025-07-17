@@ -14,8 +14,6 @@ import '../../utils/game_text_styles.dart';
 import '../../widgets/app_bar_action_button.dart';
 import 'statistics_screen_provider.dart';
 
-
-
 // Gameified, modern statistics screen
 class StatisticsScreen extends StatelessWidget {
   const StatisticsScreen({super.key});
@@ -28,111 +26,142 @@ class StatisticsScreen extends StatelessWidget {
       length: difficulties.length,
       child: ChangeNotifierProvider<StatisticsScreenProvider>(
         create: (context) => StatisticsScreenProvider(),
-        child: Consumer<StatisticsScreenProvider>(builder: (context, provider, _) {
-          return Scaffold(
-            // Vibrant gradient background
-            body: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF232526), Color(0xFF1D2B64)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+        child: Consumer<StatisticsScreenProvider>(
+          builder: (context, provider, _) {
+            return Scaffold(
+              // Vibrant gradient background
+              body: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF232526), Color(0xFF1D2B64)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
-              ),
-              child: SafeArea(
-                child: Column(
-                  children: [
-                    // Gamified header with trophy and badges
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 18.0, horizontal: 16.0),
-                      child: Row(
-                        children: [
-                          _Trophy(),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Statistics".tr(),
-                                    style: GameTextStyles.mainScreenTitle.copyWith(
-                                      fontSize: 28,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    )),
-                                const SizedBox(height: 6),
-                                Row(
-                                  children: [
-                                    _Badge(
-                                      icon: Icons.local_fire_department,
-                                      color: Colors.orange,
-                                      label: "Streak",
-                                    ),
-                                    const SizedBox(width: 10),
-                                    _Badge(
-                                      icon: Icons.emoji_events,
-                                      color: Colors.amber,
-                                      label: "Achievements",
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          // AppBarActionButton(
-                          //   onPressed: () => Navigator.pop(context),
-                          //   icon: Icons.close,
-                          //   iconSize: 30,
-                          //   color: Colors.white,
-                          // ),
-                        ],
-                      ),
-                    ),
-                    // Tab bar for difficulties
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.07),
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      margin: const EdgeInsets.symmetric(horizontal: 16),
-                      child: TabBar(
-                        // indicator: BoxDecoration(
-                        //   borderRadius: BorderRadius.circular(24),
-                        //   color: Colors.white.withOpacity(0.16),
-                        // ),
-                        labelColor: Colors.amber,
-                        unselectedLabelColor: Colors.white70,
-                        tabs: difficulties.map((d) => Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Text(
-                            d.name,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        )).toList(),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Expanded(
-                      child: provider.loading
-                          ? const Center(child: CupertinoActivityIndicator(color: Colors.amber))
-                          : TabBarView(
-                              children: List.generate(
-                                difficulties.length,
-                                (index) => Statistics(
-                                  provider: provider,
-                                  statGroupModel: provider.getStatGroup(difficulties[index]),
-                                ),
+                child: SafeArea(
+                  child: Column(
+                    children: [
+                      // Gamified header with trophy and badges
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 18.0,
+                          horizontal: 16.0,
+                        ),
+                        child: Row(
+                          children: [
+                            _Trophy(),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Statistics".tr(),
+                                    style: GameTextStyles.mainScreenTitle
+                                        .copyWith(
+                                          fontSize: 28,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Row(
+                                    children: [
+                                      _Badge(
+                                        icon: Icons.local_fire_department,
+                                        color: Colors.orange,
+                                        label: "Streak",
+                                      ),
+                                      const SizedBox(width: 10),
+                                      _Badge(
+                                        icon: Icons.emoji_events,
+                                        color: Colors.amber,
+                                        label: "Achievements",
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
-                    ),
-                  ],
+                            // AppBarActionButton(
+                            //   onPressed: () => Navigator.pop(context),
+                            //   icon: Icons.close,
+                            //   iconSize: 30,
+                            //   color: Colors.white,
+                            // ),
+                          ],
+                        ),
+                      ),
+
+                      // Tab bar for difficulties
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.07),
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: EdgeInsets.only(left: 9),
+                        child: TabBar(
+                          tabAlignment: TabAlignment.start,
+                          indicatorColor: Colors.amber,
+                          isScrollable: true,
+                          // indicator: BoxDecoration(
+                          //   borderRadius: BorderRadius.circular(24),
+                          //   color: Colors.white.withOpacity(0.16),
+                          // ),
+                          labelColor: Colors.amber,
+                          dividerColor: Colors.transparent,
+                          unselectedLabelColor: Colors.white70,
+                          tabs:
+                              difficulties
+                                  .map(
+                                    (d) => Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 16.0,
+                                        horizontal: 6,
+                                      ),
+                                      child: Text(
+                                        d.name,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+
+                                          // color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Expanded(
+                        child:
+                            provider.loading
+                                ? const Center(
+                                  child: CupertinoActivityIndicator(
+                                    color: Colors.amber,
+                                  ),
+                                )
+                                : TabBarView(
+                                  children: List.generate(
+                                    difficulties.length,
+                                    (index) => Statistics(
+                                      provider: provider,
+                                      statGroupModel: provider.getStatGroup(
+                                        difficulties[index],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        }),
+            );
+          },
+        ),
       ),
     );
   }
@@ -185,7 +214,10 @@ class _Badge extends StatelessWidget {
         children: [
           Icon(icon, color: color, size: 18),
           const SizedBox(width: 4),
-          Text(label, style: TextStyle(color: color, fontWeight: FontWeight.w600)),
+          Text(
+            label,
+            style: TextStyle(color: color, fontWeight: FontWeight.w600),
+          ),
         ],
       ),
     );
@@ -241,6 +273,7 @@ class StatisticsGroup extends StatelessWidget {
             groupTitle.toLowerCase().tr(),
             style: GameTextStyles.statisticsGroupTitle.copyWith(
               fontSize: GameSizes.getHeight(0.027),
+              color: Colors.white
             ),
           ),
           SizedBox(height: GameSizes.getHeight(0.005)),
